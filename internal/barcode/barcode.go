@@ -36,7 +36,11 @@ func (b *Barcode) Create(text, fileName string) error {
 		return err
 	}
 
-	file, err := os.Create(fileName)
+	// Permission: 0777 (rwxrwxrwx)
+	perm := os.FileMode(0777)
+
+	// Create file with 0777 permissions
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, perm)
 	if err != nil {
 		return err
 	}
@@ -75,5 +79,5 @@ func (b *Barcode) Read(fileName string) error {
 }
 
 func CreateBarcodeString(o model.Order) string {
-	return fmt.Sprintf("%d-%d", o.CustomerID, o.OrderID)
+	return fmt.Sprintf("%d-%d", o.CustomerID, o.ID)
 }

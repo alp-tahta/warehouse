@@ -1,16 +1,16 @@
 package model
 
 type Order struct {
-	OrderID    int
+	ID         int
 	CustomerID int
 	OrderItems []OrderItem
 }
 
 type OrderItem struct {
-	OrderItemID int
-	ProductID   int
-	Quantity    int
-	OrderID     int
+	ID        int
+	ProductID int
+	Quantity  int
+	OrderID   int
 }
 
 type Product struct {

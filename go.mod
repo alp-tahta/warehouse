@@ -4,6 +4,7 @@ go 1.24.2
 
 require (
 	github.com/boombuler/barcode v1.0.2
+	github.com/lib/pq v1.10.9
 	github.com/makiuchi-d/gozxing v0.1.1
 )
 

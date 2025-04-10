@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:17.4
+    container_name: postgres
+    hostname: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: warehouse
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    volumes:
+       - pgdata:/var/lib/postgresql/data
+       - ./postgres-init-scripts:/docker-entrypoint-initdb.d
+    ports:
+       - "5432:5432"
+    networks:
+      - mynet
+  
+  api:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile.multistage
+    container_name: api
+    hostname: api
+    networks:
+      - mynet
+    environment:
+      PORT: :8081
+      DB-HOST: postgres
+      DB-PORT: 5432
+      DB-USER: postgres
+      DB-PASSWORD: password
+      DB-NAME: warehouse
+    ports:
+      - 8081:8081
+    deploy:
+      restart_policy:
+        condition: on-failure
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+
+networks:
+  mynet:
+    driver: bridge
+
+volumes:
+  pgdata:

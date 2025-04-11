@@ -8,7 +8,4 @@ type RepositoryI interface {
 	MarkBarcode(id string) error
 	IncreaseShelfOccupancy(barcodeFields model.BarcodeFields) error
 	GetShelvesDetails() ([]model.ShelfInformationWithCustomer, error)
-	// GetProduct(id int) (*model.Product, error)
-	// GetProducts(ids []int) ([]model.Product, error)
-	// DeleteProduct(id int) error
 }

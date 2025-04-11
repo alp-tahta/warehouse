@@ -11,7 +11,5 @@ func RegisterRoutes(mux *http.ServeMux, h *handler.Handler) {
 	mux.HandleFunc("POST /order", h.CreateOrder)
 	mux.HandleFunc("PUT /barcode/{id}", h.UpdateBarcodeStatus)
 	mux.HandleFunc("GET /shelf", h.GetShelvesDetails)
-	// mux.HandleFunc("GET /product/{id}", corsMiddleware(h.GetProduct))
-	// mux.HandleFunc("GET /product", corsMiddleware(h.GetProducts))
-	// mux.HandleFunc("DELETE /product/{id}", corsMiddleware(h.DeleteProduct))
+	mux.HandleFunc("GET /shelf-html", h.GetShelvesDetailsHTML)
 }

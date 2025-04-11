@@ -1,1 +1,60 @@
-<h1>Editing {{.Name}}</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shelf Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Shelf Information with Customers</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Customer ID</th>
+            <th>Order ID</th>
+            <th>Shelf Name</th>
+            <th>Current Occupancy</th>
+            <th>Capacity</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .}}
+        <tr>
+            <td>{{.CustomerID}}</td>
+            <td>{{.OrderID}}</td>
+            <td>{{.ShelfName}}</td>
+            <td>{{.CurrentOccupancy}}</td>
+            <td>{{.Capacity}}</td>
+        </tr>
+        {{else}}
+        <tr>
+            <td colspan="5">No data available.</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+
+</body>
+</html>

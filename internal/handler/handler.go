@@ -78,88 +78,17 @@ func (h *Handler) GetShelvesDetails(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// func (h *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
-// 	idStr := r.PathValue("id")
-// 	if idStr == "" {
-// 		http.Error(w, "id parameter is required", http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	id, err := strconv.Atoi(idStr)
-// 	if err != nil {
-// 		http.Error(w, "invalid id parameter", http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	product, err := h.s.GetProduct(id)
-// 	if err != nil {
-// 		h.l.Error("failed to get product", "error", err)
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	w.Header().Set("Content-Type", "application/json")
-// 	if err := json.NewEncoder(w).Encode(product); err != nil {
-// 		h.l.Error("failed to encode response", "error", err)
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-// }
-
-// func (h *Handler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
-// 	idStr := r.PathValue("id")
-// 	if idStr == "" {
-// 		http.Error(w, "id parameter is required", http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	id, err := strconv.Atoi(idStr)
-// 	if err != nil {
-// 		http.Error(w, "invalid id parameter", http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	if err := h.s.DeleteProduct(id); err != nil {
-// 		h.l.Error("failed to delete product", "error", err)
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	w.WriteHeader(http.StatusOK)
-// }
-
-// func (h *Handler) GetProducts(w http.ResponseWriter, r *http.Request) {
-// 	// Get IDs from query parameters
-// 	idsParam := r.URL.Query().Get("ids")
-// 	if idsParam == "" {
-// 		http.Error(w, "ids parameter is required", http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	// Parse the comma-separated IDs
-// 	var ids []int
-// 	for _, idStr := range strings.Split(idsParam, ",") {
-// 		id, err := strconv.Atoi(idStr)
-// 		if err != nil {
-// 			http.Error(w, "invalid id in ids parameter", http.StatusBadRequest)
-// 			return
-// 		}
-// 		ids = append(ids, id)
-// 	}
-
-// 	// Get products from service
-// 	products, err := h.s.GetProducts(ids)
-// 	if err != nil {
-// 		h.l.Error("failed to get products", "error", err)
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	// Return products as JSON
-// 	w.Header().Set("Content-Type", "application/json")
-// 	if err := json.NewEncoder(w).Encode(products); err != nil {
-// 		h.l.Error("failed to encode response", "error", err)
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-// }
+func (h *Handler) GetShelvesDetailsHTML(w http.ResponseWriter, r *http.Request) {
+	t, m, err := h.s.Index()
+	if err != nil {
+		h.l.Error("Failed to execute template", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	err = t.Execute(w, m)
+	if err != nil {
+		h.l.Error("Failed to execute template", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}

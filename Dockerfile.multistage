@@ -20,7 +20,7 @@ WORKDIR /
 COPY --from=build-stage /warehouse /warehouse
 
 # Copy the templates
-#COPY --from=build-stage /app/internal/templates /internal/templates
+COPY --from=build-stage /app/internal/templates /internal/templates
 
 #USER nonroot:nonroot
 

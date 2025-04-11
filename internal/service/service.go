@@ -3,6 +3,8 @@ package service
 import (
 	"fmt"
 	"log/slog"
+	"path/filepath"
+	"text/template"
 
 	"github.com/alp-tahta/warehouse/internal/barcode"
 	"github.com/alp-tahta/warehouse/internal/model"
@@ -25,9 +27,7 @@ type ServiceI interface {
 	CreateOrder(req model.CreateOrderRequest) error
 	UpdateBarcodeStatus(id string) error
 	GetShelvesDetails() ([]model.ShelfInformationWithCustomer, error)
-	// GetProduct(id int) (*model.Product, error)
-	// GetProducts(ids []int) ([]model.Product, error)
-	// DeleteProduct(id int) error
+	Index() (*template.Template, []model.ShelfInformationWithCustomer, error)
 }
 
 func (s *Service) CreateOrder(req model.CreateOrderRequest) error {
@@ -87,41 +87,14 @@ func (s *Service) GetShelvesDetails() ([]model.ShelfInformationWithCustomer, err
 	return shelves, nil
 }
 
-// func (s *Service) GetProduct(id int) (*model.Product, error) {
-// 	s.l.Info("getting product", "id", id)
+func (s *Service) Index() (*template.Template, []model.ShelfInformationWithCustomer, error) {
+	shelves, err := s.GetShelvesDetails()
 
-// 	product, err := s.r.GetProduct(id)
-// 	if err != nil {
-// 		s.l.Error("failed to get product", "id", id, "error", err)
-// 		return nil, fmt.Errorf("failed to get product: %w", err)
-// 	}
-
-// 	s.l.Info("product retrieved successfully", "id", id)
-// 	return product, nil
-// }
-
-// func (s *Service) DeleteProduct(id int) error {
-// 	s.l.Info("deleting product", "id", id)
-
-// 	err := s.r.DeleteProduct(id)
-// 	if err != nil {
-// 		s.l.Error("failed to delete product", "id", id, "error", err)
-// 		return fmt.Errorf("failed to delete product: %w", err)
-// 	}
-
-// 	s.l.Info("product deleted successfully", "id", id)
-// 	return nil
-// }
-
-// func (s *Service) GetProducts(ids []int) ([]model.Product, error) {
-// 	s.l.Info("getting products", "ids", ids)
-
-// 	products, err := s.r.GetProducts(ids)
-// 	if err != nil {
-// 		s.l.Error("failed to get products", "ids", ids, "error", err)
-// 		return nil, fmt.Errorf("failed to get products: %w", err)
-// 	}
-
-// 	s.l.Info("products retrieved successfully", "count", len(products))
-// 	return products, nil
-// }
+	templatePath := filepath.Join("internal", "templates", "index.html")
+	t, err := template.ParseFiles(templatePath)
+	if err != nil {
+		s.l.Error("Failed to parse template", "error", err)
+		return nil, nil, err
+	}
+	return t, shelves, nil
+}

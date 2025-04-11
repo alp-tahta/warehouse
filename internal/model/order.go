@@ -1,16 +1,16 @@
 package model
 
 type Order struct {
-	ID         int
-	CustomerID int
+	ID         int `json:"id"`
+	CustomerID int `json:"CustomerID"`
 	OrderItems []OrderItem
 }
 
 type OrderItem struct {
-	ID        int
-	ProductID int
-	Quantity  int
-	OrderID   int
+	ID        int `json:"id"`
+	ProductID int `json:"product_id"`
+	Quantity  int `json:"quantity"`
+	OrderID   int `json:"order_id"`
 }
 
 type Product struct {
@@ -25,4 +25,14 @@ type Customer struct {
 
 type Shelf struct {
 	Location string
+}
+
+type CreateOrderRequest struct {
+	CustomerID string                   `json:"customer_id"`
+	OrderItems []CreateOrderItemRequest `json:"order_items"`
+}
+
+type CreateOrderItemRequest struct {
+	ProductID int `json:"product_id"`
+	Quantity  int `json:"quantity"`
 }

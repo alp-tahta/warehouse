@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/alp-tahta/warehouse/internal/model"
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/code128"
 	"github.com/makiuchi-d/gozxing"
@@ -78,6 +77,6 @@ func (b *Barcode) Read(fileName string) error {
 	return nil
 }
 
-func CreateBarcodeString(o model.Order) string {
-	return fmt.Sprintf("%d-%d", o.CustomerID, o.ID)
+func CreateBarcodeString(cID, oID string, pID int) string {
+	return fmt.Sprintf("%s*%s*%d", cID, oID, pID)
 }

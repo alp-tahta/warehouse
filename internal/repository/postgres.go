@@ -140,6 +140,28 @@ func (r *Repository) IncreaseShelfOccupancy(barcodeFields model.BarcodeFields) e
 	return nil
 }
 
+func (r *Repository) GetShelvesDetails() ([]model.ShelfInformationWithCustomer, error) {
+	query := `SELECT name, user_id, order_id, current_occupancy, capacity FROM shelves WHERE user_id IS NOT NULL AND order_id IS NOT NULL ORDER BY id`
+	rows, err := r.db.Query(query)
+	if err != nil {
+		r.l.Error("could not query shelves details", "error", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var shelves []model.ShelfInformationWithCustomer
+	for rows.Next() {
+		var shelf model.ShelfInformationWithCustomer
+		err := rows.Scan(&shelf.ShelfName, &shelf.CustomerID, &shelf.OrderID, &shelf.CurrentOccupancy, &shelf.Capacity)
+		if err != nil {
+			r.l.Error("could not scan shelf details", "error", err)
+			return nil, err
+		}
+		shelves = append(shelves, shelf)
+	}
+
+	return shelves, nil
+}
+
 // func (r *Repository) GetProducts(ids []int) ([]model.Product, error) {
 // 	if len(ids) == 0 {
 // 		return []model.Product{}, nil

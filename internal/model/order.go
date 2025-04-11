@@ -42,3 +42,11 @@ type BarcodeFields struct {
 	OrderID    string
 	ProductID  int
 }
+
+type ShelfInformationWithCustomer struct {
+	CustomerID       string
+	OrderID          string
+	ShelfName        string
+	CurrentOccupancy int
+	Capacity         int
+}

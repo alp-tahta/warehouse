@@ -24,6 +24,7 @@ func New(l *slog.Logger, r repository.RepositoryI) *Service {
 type ServiceI interface {
 	CreateOrder(req model.CreateOrderRequest) error
 	UpdateBarcodeStatus(id string) error
+	GetShelvesDetails() ([]model.ShelfInformationWithCustomer, error)
 	// GetProduct(id int) (*model.Product, error)
 	// GetProducts(ids []int) ([]model.Product, error)
 	// DeleteProduct(id int) error
@@ -71,6 +72,19 @@ func (s *Service) UpdateBarcodeStatus(id string) error {
 
 	s.l.Info("barcode marked successfully", "id", id)
 	return nil
+}
+
+func (s *Service) GetShelvesDetails() ([]model.ShelfInformationWithCustomer, error) {
+	s.l.Info("getting shelves details")
+
+	shelves, err := s.r.GetShelvesDetails()
+	if err != nil {
+		s.l.Error("failed to get shelves details", "error", err)
+		return nil, fmt.Errorf("failed to get shelves details: %w", err)
+	}
+
+	s.l.Info("shelves details retrieved successfully", "count", len(shelves))
+	return shelves, nil
 }
 
 // func (s *Service) GetProduct(id int) (*model.Product, error) {

@@ -62,6 +62,22 @@ func (h *Handler) UpdateBarcodeStatus(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func (h *Handler) GetShelvesDetails(w http.ResponseWriter, r *http.Request) {
+	shelves, err := h.s.GetShelvesDetails()
+	if err != nil {
+		h.l.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(shelves); err != nil {
+		h.l.Error("failed to encode response", "error", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
 // func (h *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 // 	idStr := r.PathValue("id")
 // 	if idStr == "" {

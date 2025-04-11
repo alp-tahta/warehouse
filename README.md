@@ -62,3 +62,8 @@ SELECT * FROM shelves;
 ## Improvements TODO
 - This is monolit service, can be turn into microservice architecture.
 - Some DB jobs can turn in transactional for reliablity.
+
+
+mockgen -source=/home/alp-tahta/projects/warehouse/internal/barcode/barcodeinterface.go -destination=/home/alp-tahta/projects/warehouse/internal/barcode/mock_barcoder.go -package=barcode
+mockgen -source=/home/alp-tahta/projects/warehouse/internal/repository/repository.go -destination=/home/alp-tahta/projects/warehouse/internal/repository/mock_repository.go -package=repository
+mockgen -source=/home/alp-tahta/projects/warehouse/internal/service/service.go -destination=/home/alp-tahta/projects/warehouse/internal/service/mock_service.go -package=service

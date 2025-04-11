@@ -12,7 +12,7 @@ import (
 
 	_ "github.com/lib/pq"
 
-	localbarcode "github.com/alp-tahta/warehouse/internal/barcode"
+	"github.com/alp-tahta/warehouse/internal/barcode"
 	"github.com/alp-tahta/warehouse/internal/config"
 	"github.com/alp-tahta/warehouse/internal/handler"
 	"github.com/alp-tahta/warehouse/internal/logger"
@@ -50,8 +50,9 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	repository := repository.New(l, db)
-	service := service.New(l, repository)
+	barcode := barcode.New(l)
+	repository := repository.New(l, barcode, db)
+	service := service.New(l, barcode, repository)
 	handler := handler.New(l, service)
 
 	routes.RegisterRoutes(mux, handler)
@@ -100,21 +101,20 @@ func main() {
 		}
 	}
 
-	barcodeText := localbarcode.CreateBarcodeString("1", "1", 1)
+	// barcodeText := localbarcode.CreateBarcodeString("1", "1", 1)
 
-	// Init barcode
-	bc := localbarcode.NewBarcode(l)
-	// Create barcode
-	err = bc.Create(barcodeText, barcodeText)
-	if err != nil {
-		l.Error("Error while creating barcode", "err", err.Error())
-		//os.Exit(1)
-	}
-	// Read barcode
-	err = bc.Read(barcodeText)
-	if err != nil {
-		l.Error("Error while reading barcode", "err", err.Error())
-		//os.Exit(1)
-	}
-
+	// // Init barcode
+	// bc := localbarcode.NewBarcode(l)
+	// // Create barcode
+	// err = bc.Create(barcodeText, barcodeText)
+	// if err != nil {
+	// 	l.Error("Error while creating barcode", "err", err.Error())
+	// 	//os.Exit(1)
+	// }
+	// // Read barcode
+	// err = bc.Read(barcodeText)
+	// if err != nil {
+	// 	l.Error("Error while reading barcode", "err", err.Error())
+	// 	//os.Exit(1)
+	// }
 }

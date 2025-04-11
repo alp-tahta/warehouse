@@ -11,12 +11,14 @@ import (
 
 type Repository struct {
 	l  *slog.Logger
+	b  barcode.Barcoder
 	db *sql.DB
 }
 
-func New(l *slog.Logger, db *sql.DB) *Repository {
+func New(l *slog.Logger, b barcode.Barcoder, db *sql.DB) *Repository {
 	return &Repository{
 		l:  l,
+		b:  b,
 		db: db,
 	}
 }
@@ -42,7 +44,7 @@ func (r *Repository) CreateOrder(req model.CreateOrderRequest) error {
 			return fmt.Errorf("could not insert to order items: %w", err)
 		}
 
-		barcode := barcode.CreateBarcodeString(req.CustomerID, orderID, v.ProductID)
+		barcode := r.b.CreateBarcodeString(req.CustomerID, orderID, v.ProductID)
 		queryBarcode := `INSERT INTO barcodes (order_id, user_id, product_id, code) VALUES ($1, $2, $3, $4)`
 		_, err = r.db.Exec(queryBarcode, orderID, req.CustomerID, v.ProductID, barcode)
 		if err != nil {

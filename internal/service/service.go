@@ -13,12 +13,14 @@ import (
 
 type Service struct {
 	l *slog.Logger
+	b barcode.Barcoder
 	r repository.RepositoryI
 }
 
-func New(l *slog.Logger, r repository.RepositoryI) *Service {
+func New(l *slog.Logger, b barcode.Barcoder, r repository.RepositoryI) *Service {
 	return &Service{
 		l: l,
+		b: b,
 		r: r,
 	}
 }
@@ -52,7 +54,7 @@ func (s *Service) UpdateBarcodeStatus(id string) error {
 		return fmt.Errorf("barcode already marked: %s", id)
 	}
 
-	v, err := barcode.ResolveBarcode(id)
+	v, err := s.b.ResolveBarcode(id)
 	if err != nil {
 		s.l.Error("failed to resolve barcode", "id", id, "error", err)
 		return fmt.Errorf("failed to resolve barcode: %w", err)

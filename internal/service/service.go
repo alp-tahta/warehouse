@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/alp-tahta/warehouse/internal/barcode"
 	"github.com/alp-tahta/warehouse/internal/model"
 	"github.com/alp-tahta/warehouse/internal/repository"
 )
@@ -48,6 +49,18 @@ func (s *Service) UpdateBarcodeStatus(id string) error {
 	if marked {
 		s.l.Info("barcode already marked", "id", id)
 		return fmt.Errorf("barcode already marked: %s", id)
+	}
+
+	v, err := barcode.ResolveBarcode(id)
+	if err != nil {
+		s.l.Error("failed to resolve barcode", "id", id, "error", err)
+		return fmt.Errorf("failed to resolve barcode: %w", err)
+	}
+
+	err = s.r.IncreaseShelfOccupancy(v)
+	if err != nil {
+		s.l.Error("failed to increase shelf occupancy", "barcodeFields", v, "error", err)
+		return fmt.Errorf("failed to increase shelf occupancy: %w", err)
 	}
 
 	err = s.r.MarkBarcode(id)

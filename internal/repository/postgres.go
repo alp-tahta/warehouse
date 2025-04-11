@@ -22,9 +22,14 @@ func New(l *slog.Logger, db *sql.DB) *Repository {
 }
 
 func (r *Repository) CreateOrder(req model.CreateOrderRequest) error {
+	err := r.FreeFullShelves()
+	if err != nil {
+		return fmt.Errorf("could not free full shelves: %w", err)
+	}
+
 	queryOrder := `INSERT INTO orders (customer_id) VALUES ($1) RETURNING id`
 	var orderID string
-	err := r.db.QueryRow(queryOrder, req.CustomerID).Scan(&orderID)
+	err = r.db.QueryRow(queryOrder, req.CustomerID).Scan(&orderID)
 	if err != nil {
 		return fmt.Errorf("could not insert to orders: %w", err)
 	}
@@ -45,6 +50,16 @@ func (r *Repository) CreateOrder(req model.CreateOrderRequest) error {
 		}
 	}
 
+	shelf, err := r.FindFreeShelf()
+	if err != nil {
+		return fmt.Errorf("could not find free shelf: %w", err)
+	}
+
+	err = r.SpareShelfForOrder(shelf, req.CustomerID, orderID, len(req.OrderItems))
+	if err != nil {
+		return fmt.Errorf("could not spare shelf for order: %w", err)
+	}
+
 	return nil
 }
 
@@ -60,8 +75,19 @@ func (r *Repository) CheckIfBarcodeMarked(id string) (bool, error) {
 }
 
 func (r *Repository) MarkBarcode(id string) error {
+	// Check if the barcode marked
+	queryMarked := `SELECT marked FROM barcodes WHERE code = $1`
+	var count bool
+	err := r.db.QueryRow(queryMarked, id).Scan(&count)
+	if err != nil {
+		return fmt.Errorf("could not check barcode: %w", err)
+	}
+	if count == true {
+		return fmt.Errorf("barcode already marked: %s", id)
+	}
+
 	query := `UPDATE barcodes SET marked = true WHERE code = $1`
-	_, err := r.db.Exec(query, id)
+	_, err = r.db.Exec(query, id)
 	if err != nil {
 		return fmt.Errorf("could not mark barcode: %w", err)
 	}
@@ -69,18 +95,50 @@ func (r *Repository) MarkBarcode(id string) error {
 	return nil
 }
 
-// func (r *Repository) GetProduct(id int) (*model.Product, error) {
-// 	query := `SELECT id, name, description, price FROM products WHERE id = $1`
-// 	product := &model.Product{}
-// 	err := r.db.QueryRow(query, id).Scan(&product.ID, &product.Name, &product.Description, &product.Price)
-// 	if err != nil {
-// 		if err == sql.ErrNoRows {
-// 			return nil, fmt.Errorf("product not found")
-// 		}
-// 		return nil, fmt.Errorf("could not get product: %w", err)
-// 	}
-// 	return product, nil
-// }
+// Free full shelves
+func (r *Repository) FreeFullShelves() error {
+	query := `UPDATE shelves SET user_id = NULL, order_id = NULL, current_occupancy = 0, capacity = 0  WHERE current_occupancy = capacity`
+	_, err := r.db.Exec(query)
+	if err != nil {
+		return fmt.Errorf("could not free full shelves: %w", err)
+	}
+
+	return nil
+}
+
+// Find empty shelf
+func (r *Repository) FindFreeShelf() (string, error) {
+	query := `SELECT name FROM shelves WHERE user_id IS NULL AND order_id IS NULL AND capacity = 0 ORDER BY id LIMIT 1`
+	var shelfName string
+	err := r.db.QueryRow(query).Scan(&shelfName)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", fmt.Errorf("no empty shelf found")
+		}
+		return "", fmt.Errorf("could not find empty shelf: %w", err)
+	}
+
+	return shelfName, nil
+}
+
+func (r *Repository) SpareShelfForOrder(shelfName, userID, orderID string, capacity int) error {
+	query := `UPDATE shelves SET user_id = $1, order_id = $2, current_occupancy = 0, capacity = $3 WHERE name = $4`
+	_, err := r.db.Exec(query, userID, orderID, capacity, shelfName)
+	if err != nil {
+		return fmt.Errorf("could not spare shelf for order: %w", err)
+	}
+	return nil
+}
+
+// Increase shelf occupancy by 1
+func (r *Repository) IncreaseShelfOccupancy(barcodeFields model.BarcodeFields) error {
+	query := `UPDATE shelves SET current_occupancy = current_occupancy + 1 WHERE user_id = $1 AND order_id= $2`
+	_, err := r.db.Exec(query, barcodeFields.CustomerID, barcodeFields.OrderID)
+	if err != nil {
+		return fmt.Errorf("could not increase shelf occupancy: %w", err)
+	}
+	return nil
+}
 
 // func (r *Repository) GetProducts(ids []int) ([]model.Product, error) {
 // 	if len(ids) == 0 {

@@ -22,11 +22,42 @@ CREATE TABLE IF NOT EXISTS barcodes (
     marked boolean DEFAULT false NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS shelves (
+    id  SERIAL PRIMARY KEY,
+    name VARCHAR(10) UNIQUE NOT NULL,
+    user_id UUID,
+    order_id UUID,
+    current_occupancy INT DEFAULT 0 NOT NULL,
+    capacity INT DEFAULT 0 NOT NULL
+);
+
 CREATE INDEX ON orders (id);
 
 CREATE INDEX ON order_items (id);
 
 CREATE INDEX ON barcodes (code);
+
+CREATE INDEX ON shelves (name);
+
+ALTER TABLE "order_items" ADD FOREIGN KEY ("order_id") REFERENCES "orders" ("id");
+
+ALTER TABLE "barcodes" ADD FOREIGN KEY ("order_id") REFERENCES "orders" ("id");
+
+ALTER TABLE "shelves" ADD FOREIGN KEY ("order_id") REFERENCES "orders" ("id");
+
+INSERT INTO shelves (name) VALUES 
+    ('A1'),
+    ('A2'),
+    ('A3'),
+    ('A4'),
+    ('B1'),
+    ('B2'),
+    ('B3'),
+    ('B4'),
+    ('C1'),
+    ('C2'),
+    ('C3'),
+    ('C4');
 
 -- INSERT INTO products (name, description, price) VALUES 
 --     ('Bird s Nest Fern', 'The Bird s Nest Fern is a tropical plant known for its vibrant green, wavy fronds...',22),

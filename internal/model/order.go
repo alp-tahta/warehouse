@@ -36,3 +36,9 @@ type CreateOrderItemRequest struct {
 	ProductID int `json:"product_id"`
 	Quantity  int `json:"quantity"`
 }
+
+type BarcodeFields struct {
+	CustomerID string
+	OrderID    string
+	ProductID  int
+}

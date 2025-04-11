@@ -1,12 +1,16 @@
 package barcode
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"image/png"
 	"log/slog"
 	"os"
+	"strconv"
+	"strings"
 
+	"github.com/alp-tahta/warehouse/internal/model"
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/code128"
 	"github.com/makiuchi-d/gozxing"
@@ -79,4 +83,21 @@ func (b *Barcode) Read(fileName string) error {
 
 func CreateBarcodeString(cID, oID string, pID int) string {
 	return fmt.Sprintf("%s*%s*%d", cID, oID, pID)
+}
+
+func ResolveBarcode(barcode string) (b model.BarcodeFields, e error) {
+	parts := strings.Split(barcode, "*")
+	if len(parts) != 3 {
+		return b, errors.New("Invalid barcode format")
+	}
+
+	b.CustomerID = parts[0]
+	b.OrderID = parts[1]
+	pID, err := strconv.Atoi(parts[2])
+	if err != nil {
+		return b, err
+	}
+	b.ProductID = pID
+
+	return b, nil
 }
